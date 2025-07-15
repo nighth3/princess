@@ -1,0 +1,35 @@
+while true do
+    local player = game.Players.LocalPlayer
+    if player then
+        local character = player.Character or player.CharacterAdded:Wait()
+        if character and character:FindFirstChild("Humanoid") and character:FindFirstChild("HumanoidRootPart") then
+            
+            local tycoons = {
+                "Moon", "Spirit", "Cotton", "Glitter", "Friday", 
+                "Sunshine", "Jade", "Rose", "Spring", "Angel"
+            }
+            
+            for _, tycoonName in ipairs(tycoons) do
+                for i = 1, 8 do
+                    -- Исключаем:
+                    -- 1. Giver2 в Cotton
+                    -- 2. Giver3 в Friday
+                    local isExcludedGiver = 
+                        (tycoonName == "Cotton" and i == 2) or
+                        (tycoonName == "Friday" and i == 3)
+                    
+                    if not isExcludedGiver then
+                        local giverPath = game.Workspace.Tycoons.Tycoons[tycoonName].PurchasedObjects:FindFirstChild("Giver"..i)
+                        if giverPath and giverPath:FindFirstChild("Giver") then
+                            local giver = giverPath.Giver
+                            giver.Transparency = 0.9
+                            giver.CanCollide = false
+                            giver.Position = character.HumanoidRootPart.Position + Vector3.new(0, 0, 0)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    wait(0.1)
+end
