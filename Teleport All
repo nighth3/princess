@@ -1,0 +1,52 @@
+local localPlayer = game:GetService("Players").LocalPlayer
+local TELEPORT_DISTANCE = 5  -- Дистанция перед игроком
+local FIXED_HEIGHT = 0       -- Высота (0 = на том же уровне)
+local teleportedPlayers = {}  -- Таблица для отслеживания телепортированных игроков
+
+while true do
+    if not localPlayer.Character then
+        wait(1)
+        continue
+    end
+
+    local humanoidRootPart = localPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not humanoidRootPart then
+        wait(1)
+        continue
+    end
+
+    -- Вычисляем точку перед игроком
+    local teleportCFrame = humanoidRootPart.CFrame * CFrame.new(0, FIXED_HEIGHT, -TELEPORT_DISTANCE)
+
+    -- Телепортируем всех игроков, кроме себя (только один раз)
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player == localPlayer or teleportedPlayers[player] then
+            continue  -- Пропускаем себя и уже телепортированных игроков
+        end
+
+        if not player.Character then
+            continue
+        end
+
+        local otherRoot = player.Character:FindFirstChild("HumanoidRootPart")
+        if not otherRoot then
+            continue
+        end
+
+        -- Блокируем движение
+        local otherHumanoid = player.Character:FindFirstChildOfClass("Humanoid")
+        if otherHumanoid then
+            otherHumanoid.WalkSpeed = 0
+            otherHumanoid.JumpPower = 0
+            otherHumanoid.AutoRotate = false
+        end
+
+        -- Фиксируем позицию и поворачиваем спиной
+        otherRoot.Anchored = true
+        otherRoot.CFrame = teleportCFrame * CFrame.Angles(0, math.pi, 0) -- Поворот на 180° (спиной)
+        
+        teleportedPlayers[player] = true  -- Помечаем игрока как телепортированного
+    end
+
+    wait(1)  -- Интервал проверки (но телепортация будет только один раз)
+end
